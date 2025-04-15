@@ -47,6 +47,45 @@ func (q *Queries) CheckUserBaseExists(ctx context.Context, userAccount string) (
 	return count, err
 }
 
+const getAccounts = `-- name: GetAccounts :many
+SELECT user_id, user_account, user_password, user_salt, user_role
+FROM tbl_account
+`
+
+type GetAccountsRow struct {
+	UserID       pgtype.UUID
+	UserAccount  string
+	UserPassword string
+	UserSalt     string
+	UserRole     int32
+}
+
+func (q *Queries) GetAccounts(ctx context.Context) ([]GetAccountsRow, error) {
+	rows, err := q.db.Query(ctx, getAccounts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAccountsRow
+	for rows.Next() {
+		var i GetAccountsRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.UserAccount,
+			&i.UserPassword,
+			&i.UserSalt,
+			&i.UserRole,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOneUserInfo = `-- name: GetOneUserInfo :one
 SELECT user_id, user_account, user_password, user_salt, user_role
 FROM tbl_account

@@ -1,5 +1,9 @@
 scalar Time
 
+type SampleResponse {
+    code: Int!,
+    Message: String!
+}
 type Account {
     id: String!
     name: String!
@@ -38,6 +42,11 @@ input AccountInput {
     userPassword: String!
 }
 
+#Register account
+input RegisterAccount {
+    userAccount: String!
+}
+
 input ProductInput {
     name: String!,
     description: String!
@@ -55,12 +64,13 @@ input OrderInput {
 }
 
 type Mutation {
+    registerAccount(account: RegisterAccount): SampleResponse
     createAccount(account: AccountInput): Account
     createProduct(product: ProductInput): Product
     createOrder(order: OrderInput): Order
 }
 
 type Query {
-    accounts(paginations: PaginationInput, id: String): [Account!]!
-    products(paginations: PaginationInput, id: String): [Product!]!
+    accounts(paginations: PaginationInput): [Account!]!
+    products(paginations: PaginationInput): [Product!]!
 }

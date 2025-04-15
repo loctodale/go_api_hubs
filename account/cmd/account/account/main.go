@@ -1,21 +1,19 @@
 package main
 
 import (
-	"github.com/loctodale/go_api_hubs_microservice/account/config"
+	"github.com/loctodale/go_api_hubs_microservice/account/global"
+	"github.com/loctodale/go_api_hubs_microservice/account/internal/initialize"
 	"github.com/loctodale/go_api_hubs_microservice/account/internal/repository"
 	"github.com/loctodale/go_api_hubs_microservice/account/internal/server"
 	"github.com/loctodale/go_api_hubs_microservice/account/internal/service"
 	"github.com/loctodale/go_api_hubs_microservice/account/utils"
-	"github.com/spf13/viper"
 	"log"
 )
 
 func main() {
-
-	config.LoadConfig()
-
+	initialize.Run()
 	var r repository.Repository
-	r, err := repository.NewPostgresRepository(viper.GetString("account_service.database.postgres"))
+	r, err := repository.NewAccountRepository()
 	if err != nil {
 		log.Println(err)
 	}
@@ -26,7 +24,7 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	port := viper.GetInt("account_service.port.local")
+	port := global.Config.AccountService.Ports.Local
 	log.Println("Listening on port: ", port)
 	s := service.NewAccountService(r, u)
 	log.Fatal(server.ListenGRPC(s, port))

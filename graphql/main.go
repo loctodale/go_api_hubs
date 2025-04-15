@@ -21,7 +21,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	s, err := NewGraphqlServer("account-service", "", "")
+	s, err := NewGraphqlServer("localhost:6000", "", "")
 	if err != nil {
 		log.Fatal(err)
 	}

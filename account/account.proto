@@ -19,9 +19,11 @@ message PostAccountResponse {
 message GetAccountRequest {
   string userAccount = 1;
 }
+message Empty {
 
-message GetAccountResponse {
-  Account account = 1;
+}
+message GetAccountsResponse {
+  repeated Account account = 1;
 }
 
 service AccountService{
@@ -29,7 +31,7 @@ service AccountService{
 
   }
 
-  rpc GetAccount (GetAccountRequest) returns (GetAccountResponse) {
+  rpc GetAccounts (Empty) returns (GetAccountsResponse) {
 
   }
 }

@@ -34,11 +34,17 @@ func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAccountRequest) 
 	return &pb.PostAccountResponse{}, nil
 }
 
-func (s *grpcServer) GetAccount(ctx context.Context, request *pb.GetAccountRequest) (*pb.GetAccountResponse, error) {
-	result, err := s.service.GetAccount(request.UserAccount)
+func (s *grpcServer) GetAccounts(ctx context.Context, request *pb.Empty) (*pb.GetAccountsResponse, error) {
+	res, err := s.service.GetAccounts()
 	if err != nil {
 		return nil, err
 	}
-	userId := result.UserID.String()
-	return &pb.GetAccountResponse{Account: &pb.Account{Id: userId, Name: result.UserAccount}}, nil
+	accounts := []*pb.Account{}
+	for _, p := range res {
+		accounts = append(accounts, &pb.Account{
+			Id:   p.UserID.String(),
+			Name: p.UserAccount,
+		})
+	}
+	return &pb.GetAccountsResponse{Account: accounts}, nil
 }

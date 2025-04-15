@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/loctodale/go_api_hubs_microservice/account/global"
 	"github.com/loctodale/go_api_hubs_microservice/account/pb"
 	"google.golang.org/grpc"
 )
@@ -25,7 +26,7 @@ func (c *Client) Close() {
 
 func (c *Client) PostAccount(userAccount string, userPassword string) error {
 	_, err := c.service.PostAccount(
-		Ctx,
+		global.Ctx,
 		&pb.PostAccountRequest{UserAccount: userAccount, UserPassword: userPassword},
 	)
 	if err != nil {
@@ -35,11 +36,13 @@ func (c *Client) PostAccount(userAccount string, userPassword string) error {
 	return nil
 }
 
-func (c *Client) GetAccount(userAccount string) (pb.GetAccountResponse, error) {
-	result, err := c.service.GetAccount(Ctx, &pb.GetAccountRequest{UserAccount: userAccount})
+func (c *Client) GetAccounts() (pb.GetAccountsResponse, error) {
+	result, err := c.service.GetAccounts(global.Ctx, &pb.Empty{})
 	if err != nil {
-		return pb.GetAccountResponse{}, err
+		return pb.GetAccountsResponse{}, err
 	}
 
-	return *result, nil
+	return pb.GetAccountsResponse{
+		Account: result.Account,
+	}, nil
 }

@@ -59,3 +59,12 @@ type ProductInput struct {
 
 type Query struct {
 }
+
+type RegisterAccount struct {
+	UserAccount string `json:"userAccount"`
+}
+
+type SampleResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"Message"`
+}

@@ -9,7 +9,8 @@ import (
 
 type Service interface {
 	PostAccount(userAccount string, userPassword string) error
-	GetAccount(userAccount string) (database.GetOneUserInfoRow, error)
+	GetAccounts() ([]database.GetAccountsRow, error)
+	RegisterAccount(userAccount string) error
 }
 type accountService struct {
 	repository repository2.Repository
@@ -53,11 +54,19 @@ func (a *accountService) PostAccount(userAccount string, userPassword string) er
 	return nil
 }
 
-func (a *accountService) GetAccount(userAccount string) (database.GetOneUserInfoRow, error) {
-	result, err := a.repository.GetOneUserInfo(userAccount)
-	if err != nil {
-		return database.GetOneUserInfoRow{}, err
-	}
+func (a *accountService) GetAccounts() ([]database.GetAccountsRow, error) {
+	result := a.repository.GetAccounts()
 
 	return result, nil
+}
+
+func (a *accountService) RegisterAccount(userAccount string) error {
+	isExisted, err := a.repository.CheckUserBaseExists(userAccount)
+	if err != nil {
+		return err
+	}
+	if isExisted != 0 {
+		return errors.New("Account already existed")
+	}
+	return nil
 }

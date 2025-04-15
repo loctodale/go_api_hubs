@@ -28,3 +28,6 @@ UPDATE tbl_account
 SET user_logout_time = NOW()
 WHERE user_account = $1;
 
+-- name: GetAccounts :many
+SELECT user_id, user_account, user_password, user_salt, user_role
+FROM tbl_account;

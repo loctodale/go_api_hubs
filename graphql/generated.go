@@ -55,9 +55,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateAccount func(childComplexity int, account *AccountInput) int
-		CreateOrder   func(childComplexity int, order *OrderInput) int
-		CreateProduct func(childComplexity int, product *ProductInput) int
+		CreateAccount   func(childComplexity int, account *AccountInput) int
+		CreateOrder     func(childComplexity int, order *OrderInput) int
+		CreateProduct   func(childComplexity int, product *ProductInput) int
+		RegisterAccount func(childComplexity int, account *RegisterAccount) int
 	}
 
 	Order struct {
@@ -83,8 +84,13 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Accounts func(childComplexity int, paginations *PaginationInput, id *string) int
-		Products func(childComplexity int, paginations *PaginationInput, id *string) int
+		Accounts func(childComplexity int, paginations *PaginationInput) int
+		Products func(childComplexity int, paginations *PaginationInput) int
+	}
+
+	SampleResponse struct {
+		Code    func(childComplexity int) int
+		Message func(childComplexity int) int
 	}
 }
 
@@ -92,13 +98,14 @@ type AccountResolver interface {
 	Orders(ctx context.Context, obj *Account) ([]*Order, error)
 }
 type MutationResolver interface {
+	RegisterAccount(ctx context.Context, account *RegisterAccount) (*SampleResponse, error)
 	CreateAccount(ctx context.Context, account *AccountInput) (*Account, error)
 	CreateProduct(ctx context.Context, product *ProductInput) (*Product, error)
 	CreateOrder(ctx context.Context, order *OrderInput) (*Order, error)
 }
 type QueryResolver interface {
-	Accounts(ctx context.Context, paginations *PaginationInput, id *string) ([]*Account, error)
-	Products(ctx context.Context, paginations *PaginationInput, id *string) ([]*Product, error)
+	Accounts(ctx context.Context, paginations *PaginationInput) ([]*Account, error)
+	Products(ctx context.Context, paginations *PaginationInput) ([]*Product, error)
 }
 
 type executableSchema struct {
@@ -176,6 +183,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateProduct(childComplexity, args["product"].(*ProductInput)), true
+
+	case "Mutation.registerAccount":
+		if e.complexity.Mutation.RegisterAccount == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registerAccount_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegisterAccount(childComplexity, args["account"].(*RegisterAccount)), true
 
 	case "Order.createdAt":
 		if e.complexity.Order.CreatedAt == nil {
@@ -278,7 +297,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Accounts(childComplexity, args["paginations"].(*PaginationInput), args["id"].(*string)), true
+		return e.complexity.Query.Accounts(childComplexity, args["paginations"].(*PaginationInput)), true
 
 	case "Query.products":
 		if e.complexity.Query.Products == nil {
@@ -290,7 +309,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Products(childComplexity, args["paginations"].(*PaginationInput), args["id"].(*string)), true
+		return e.complexity.Query.Products(childComplexity, args["paginations"].(*PaginationInput)), true
+
+	case "SampleResponse.code":
+		if e.complexity.SampleResponse.Code == nil {
+			break
+		}
+
+		return e.complexity.SampleResponse.Code(childComplexity), true
+
+	case "SampleResponse.Message":
+		if e.complexity.SampleResponse.Message == nil {
+			break
+		}
+
+		return e.complexity.SampleResponse.Message(childComplexity), true
 
 	}
 	return 0, false
@@ -305,6 +338,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputOrderProductInput,
 		ec.unmarshalInputPaginationInput,
 		ec.unmarshalInputProductInput,
+		ec.unmarshalInputRegisterAccount,
 	)
 	first := true
 
@@ -505,6 +539,34 @@ func (ec *executionContext) field_Mutation_createProduct_argsProduct(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_registerAccount_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_registerAccount_argsAccount(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["account"] = arg0
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_registerAccount_argsAccount(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (*RegisterAccount, error) {
+	if _, ok := rawArgs["account"]; !ok {
+		var zeroVal *RegisterAccount
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("account"))
+	if tmp, ok := rawArgs["account"]; ok {
+		return ec.unmarshalORegisterAccount2ᚖgithubᚗcomᚋloctodaleᚋgo_api_hubs_microserviceᚋgraphqlᚐRegisterAccount(ctx, tmp)
+	}
+
+	var zeroVal *RegisterAccount
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -541,11 +603,6 @@ func (ec *executionContext) field_Query_accounts_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["paginations"] = arg0
-	arg1, err := ec.field_Query_accounts_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg1
 	return args, nil
 }
 func (ec *executionContext) field_Query_accounts_argsPaginations(
@@ -566,24 +623,6 @@ func (ec *executionContext) field_Query_accounts_argsPaginations(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_accounts_argsID(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*string, error) {
-	if _, ok := rawArgs["id"]; !ok {
-		var zeroVal *string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalOString2ᚖstring(ctx, tmp)
-	}
-
-	var zeroVal *string
-	return zeroVal, nil
-}
-
 func (ec *executionContext) field_Query_products_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -592,11 +631,6 @@ func (ec *executionContext) field_Query_products_args(ctx context.Context, rawAr
 		return nil, err
 	}
 	args["paginations"] = arg0
-	arg1, err := ec.field_Query_products_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg1
 	return args, nil
 }
 func (ec *executionContext) field_Query_products_argsPaginations(
@@ -614,24 +648,6 @@ func (ec *executionContext) field_Query_products_argsPaginations(
 	}
 
 	var zeroVal *PaginationInput
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_products_argsID(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (*string, error) {
-	if _, ok := rawArgs["id"]; !ok {
-		var zeroVal *string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
-		return ec.unmarshalOString2ᚖstring(ctx, tmp)
-	}
-
-	var zeroVal *string
 	return zeroVal, nil
 }
 
@@ -893,6 +909,64 @@ func (ec *executionContext) fieldContext_Account_orders(_ context.Context, field
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Order", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registerAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_registerAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().RegisterAccount(rctx, fc.Args["account"].(*RegisterAccount))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*SampleResponse)
+	fc.Result = res
+	return ec.marshalOSampleResponse2ᚖgithubᚗcomᚋloctodaleᚋgo_api_hubs_microserviceᚋgraphqlᚐSampleResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registerAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "code":
+				return ec.fieldContext_SampleResponse_code(ctx, field)
+			case "Message":
+				return ec.fieldContext_SampleResponse_Message(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SampleResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registerAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -1679,7 +1753,7 @@ func (ec *executionContext) _Query_accounts(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Accounts(rctx, fc.Args["paginations"].(*PaginationInput), fc.Args["id"].(*string))
+		return ec.resolvers.Query().Accounts(rctx, fc.Args["paginations"].(*PaginationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1742,7 +1816,7 @@ func (ec *executionContext) _Query_products(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Products(rctx, fc.Args["paginations"].(*PaginationInput), fc.Args["id"].(*string))
+		return ec.resolvers.Query().Products(rctx, fc.Args["paginations"].(*PaginationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1919,6 +1993,94 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SampleResponse_code(ctx context.Context, field graphql.CollectedField, obj *SampleResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SampleResponse_code(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Code, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SampleResponse_code(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SampleResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SampleResponse_Message(ctx context.Context, field graphql.CollectedField, obj *SampleResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SampleResponse_Message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SampleResponse_Message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SampleResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4052,6 +4214,33 @@ func (ec *executionContext) unmarshalInputProductInput(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputRegisterAccount(ctx context.Context, obj any) (RegisterAccount, error) {
+	var it RegisterAccount
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"userAccount"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "userAccount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userAccount"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UserAccount = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4159,6 +4348,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
+		case "registerAccount":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registerAccount(ctx, field)
+			})
 		case "createAccount":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createAccount(ctx, field)
@@ -4432,6 +4625,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var sampleResponseImplementors = []string{"SampleResponse"}
+
+func (ec *executionContext) _SampleResponse(ctx context.Context, sel ast.SelectionSet, obj *SampleResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, sampleResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SampleResponse")
+		case "code":
+			out.Values[i] = ec._SampleResponse_code(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "Message":
+			out.Values[i] = ec._SampleResponse_Message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5445,6 +5682,21 @@ func (ec *executionContext) unmarshalOProductInput2ᚖgithubᚗcomᚋloctodale�
 	}
 	res, err := ec.unmarshalInputProductInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalORegisterAccount2ᚖgithubᚗcomᚋloctodaleᚋgo_api_hubs_microserviceᚋgraphqlᚐRegisterAccount(ctx context.Context, v any) (*RegisterAccount, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputRegisterAccount(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOSampleResponse2ᚖgithubᚗcomᚋloctodaleᚋgo_api_hubs_microserviceᚋgraphqlᚐSampleResponse(ctx context.Context, sel ast.SelectionSet, v *SampleResponse) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._SampleResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v any) (*string, error) {

@@ -14,6 +14,11 @@ func (m mutationResolver) CreateAccount(ctx context.Context, account *AccountInp
 	return nil, nil
 }
 
+func (m mutationResolver) RegisterAccount(ctx context.Context, account *RegisterAccount) (*SampleResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m mutationResolver) CreateProduct(ctx context.Context, product *ProductInput) (*Product, error) {
 	//TODO implement me
 	panic("implement me")
