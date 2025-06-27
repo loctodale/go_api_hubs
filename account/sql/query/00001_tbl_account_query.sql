@@ -31,3 +31,8 @@ WHERE user_account = $1;
 -- name: GetAccounts :many
 SELECT user_id, user_account, user_password, user_salt, user_role
 FROM tbl_account;
+
+-- name: GetLoginAccount :one
+SELECT user_account, user_password, user_salt, user_id
+FROM tbl_account
+WHERE user_account = $1;

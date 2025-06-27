@@ -4,4 +4,5 @@ func Run() {
 	LoadConfig()
 	InitPostgresServer()
 	InitRedisServer()
+	InitKafkaServer()
 }

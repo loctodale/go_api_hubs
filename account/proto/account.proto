@@ -1,0 +1,98 @@
+syntax = "proto3";
+option go_package = "/pb";
+package pb;
+import "google/api/annotations.proto";
+
+service AccountService{
+  rpc RegisterAccount (RegisterAccountRequest) returns (BaseResponseMessage){
+    option (google.api.http) = {
+      post: "/account/register"
+      body: "*"
+    };
+  };
+  rpc PostAccount (PostAccountRequest) returns (PostAccountResponse) {
+    option (google.api.http) = {
+      post: "/account/post",
+      body: "*"
+    };
+  };
+  rpc GetAccounts (Empty) returns (GetAccountsResponse) {
+    option (google.api.http) = {
+      get: "/account/get"
+    };
+  };
+  rpc Login (LoginModel) returns (LoginResponse){
+    option (google.api.http) = {
+      post: "/account/login",
+      body: "*"
+    };
+  };
+  rpc VerifyAccount(VerifyAccountRequest) returns (BaseResponseMessage){
+    option (google.api.http) = {
+      post: "/account/verify",
+      body: "*",
+    };
+  }
+}
+
+service PrivateAccountService {
+  rpc GetAccount(Empty) returns (Profile){
+    option (google.api.http) = {
+      get: "/private/account"
+    };
+  }
+}
+
+message Profile {
+  string userId = 1;
+  string userAccount = 2;
+  string userRole = 3;
+}
+
+message VerifyAccountRequest {
+  string account = 1;
+  string otp = 2;
+}
+
+message Account {
+  string id = 1;
+  string name = 2;
+
+}
+message PostAccountRequest {
+    string userAccount = 1;
+    string userPassword = 2;
+}
+
+message PostAccountResponse {
+
+}
+
+message GetAccountRequest {
+  string userAccount = 1;
+}
+message Empty {
+
+}
+message GetAccountsResponse {
+  repeated Account account = 1;
+}
+message RegisterAccountRequest{
+  string userAccount = 1;
+}
+
+message LoginModel {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string accessToken = 1;
+  string refreshToken = 2;
+}
+
+message BaseResponseMessage {
+  int32 code = 1;
+  string message = 2;
+}
+

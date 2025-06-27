@@ -2,33 +2,26 @@ package repository
 
 import (
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/loctodale/go_api_hubs_microservice/account/database"
 	"github.com/loctodale/go_api_hubs_microservice/account/global"
 )
 
 type Repository interface {
 	Close()
-	CreateNewAccount(a database.AddUserBaseParams) error
+	CreateNewAccount(a database.AddUserBaseParams) (pgconn.CommandTag, error)
 	GetOneUserInfo(userAccount string) (database.GetOneUserInfoRow, error)
 	GetOneUserInfoAdmin(userAccount string) (database.GetOneUserInfoAdminRow, error)
 	LoginUserBase(loginParams database.LoginUserBaseParams) error
 	CheckUserBaseExists(userAccount string) (int64, error)
 	GetAccounts() []database.GetAccountsRow
+	GetLoginAccount(userAccount string) (database.GetLoginAccountRow, error)
 }
 
 type postgresRepository struct {
 	conn    *pgx.Conn
 	queries *database.Queries
 }
-
-//func NewPostgresRepository(url string) (Repository, error) {
-//	conn, err := pgx.Connect(global.Ctx, url)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &postgresRepository{queries: database.New(conn), conn: conn}, nil
-//}
 
 func NewAccountRepository() (Repository, error) {
 	return &postgresRepository{
@@ -41,12 +34,12 @@ func (r postgresRepository) Close() {
 	r.conn.Close(global.Ctx)
 }
 
-func (r postgresRepository) CreateNewAccount(a database.AddUserBaseParams) error {
-	_, err := r.queries.AddUserBase(global.Ctx, a)
+func (r postgresRepository) CreateNewAccount(a database.AddUserBaseParams) (pgconn.CommandTag, error) {
+	result, err := r.queries.AddUserBase(global.Ctx, a)
 	if err != nil {
-		return err
+		return pgconn.CommandTag{}, err
 	}
-	return nil
+	return result, nil
 }
 
 func (r postgresRepository) GetOneUserInfo(userAccount string) (database.GetOneUserInfoRow, error) {
@@ -89,4 +82,12 @@ func (r postgresRepository) GetAccounts() []database.GetAccountsRow {
 	}
 
 	return result
+}
+
+func (r postgresRepository) GetLoginAccount(userAccount string) (database.GetLoginAccountRow, error) {
+	result, err := r.queries.GetLoginAccount(global.Ctx, userAccount)
+	if err != nil {
+		return database.GetLoginAccountRow{}, err
+	}
+	return result, nil
 }

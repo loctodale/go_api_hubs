@@ -1,0 +1,99 @@
+package server
+
+import (
+	"context"
+	"fmt"
+	"github.com/loctodale/go_api_hubs_microservice/account/internal/service"
+	"github.com/loctodale/go_api_hubs_microservice/account/pb"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/reflection"
+	"net"
+)
+
+type grpcServer struct {
+	pb.UnimplementedAccountServiceServer
+	pb.UnimplementedPrivateAccountServiceServer
+	service service.Service
+}
+
+func ListenGRPC(s service.Service, port int) error {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return err
+	}
+	serv := grpc.NewServer()
+	pb.RegisterAccountServiceServer(serv, &grpcServer{service: s})
+	pb.RegisterPrivateAccountServiceServer(serv, &grpcServer{service: s})
+	reflection.Register(serv)
+	return serv.Serve(lis)
+}
+
+func (s *grpcServer) PostAccount(ctx context.Context, r *pb.PostAccountRequest) (*pb.PostAccountResponse, error) {
+	err := s.service.PostAccount(r.UserAccount, r.UserPassword)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.PostAccountResponse{}, nil
+}
+
+func (s *grpcServer) GetAccounts(ctx context.Context, request *pb.Empty) (*pb.GetAccountsResponse, error) {
+	res, err := s.service.GetAccounts()
+	if err != nil {
+		return nil, err
+	}
+	accounts := []*pb.Account{}
+	for _, p := range res {
+		accounts = append(accounts, &pb.Account{
+			Id:   p.UserID.String(),
+			Name: p.UserAccount,
+		})
+	}
+	return &pb.GetAccountsResponse{Account: accounts}, nil
+}
+
+func (s *grpcServer) RegisterAccount(ctx context.Context, req *pb.RegisterAccountRequest) (*pb.BaseResponseMessage, error) {
+	result, err := s.service.RegisterAccount(req.UserAccount)
+	if err != nil {
+		return &result, nil
+	}
+	return &pb.BaseResponseMessage{
+		Message: fmt.Sprintf("User Account %s is registered", req.UserAccount),
+		Code:    200,
+	}, nil
+}
+
+func (s *grpcServer) VerifyAccount(ctx context.Context, req *pb.VerifyAccountRequest) (*pb.BaseResponseMessage, error) {
+	request, err := s.service.VerifyAccount(req.Account, req.Otp)
+	if err != nil {
+		fmt.Println(err)
+		return &request, nil
+	}
+	return &request, nil
+}
+func (s *grpcServer) Login(ctx context.Context, req *pb.LoginModel) (*pb.LoginResponse, error) {
+	result, err := s.service.LoginAccount(req.Username, req.Password)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (s *grpcServer) GetAccount(ctx context.Context, req *pb.Empty) (*pb.Profile, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return &pb.Profile{
+			UserRole:    "2",
+			UserAccount: "2",
+			UserId:      "22",
+		}, nil
+	}
+	fmt.Println(md.Get("x-consumer-custom-id"))
+	fmt.Println("handle get account success")
+	return &pb.Profile{
+		UserRole:    "1",
+		UserAccount: "1",
+		UserId:      "11",
+	}, nil
+}

@@ -12,33 +12,33 @@ type CryptoUtils interface {
 	HashPasswordSalt(password string, salt string) string
 	MatchPassword(storeHash string, password string, salt string) bool
 }
-type utils struct{}
+type cryptoUtils struct{}
 
-func NewUtils() CryptoUtils {
-	return &utils{}
+func NewCryptoUtils() CryptoUtils {
+	return &cryptoUtils{}
 }
 
-func (u *utils) GetHash(key string) string {
+func (u *cryptoUtils) GetHash(key string) string {
 	hash := sha256.New()
 	hash.Write([]byte(key))
 	hashBytes := hash.Sum(nil)
 	return hex.EncodeToString(hashBytes)
 }
-func (u *utils) GenerateSalt(length int) (string, error) {
+func (u *cryptoUtils) GenerateSalt(length int) (string, error) {
 	salt := make([]byte, length)
 	if _, err := rand.Read(salt); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(salt), nil
 }
-func (u *utils) HashPasswordSalt(password string, salt string) string {
+func (u *cryptoUtils) HashPasswordSalt(password string, salt string) string {
 	saltedPassword := password + salt
 
 	hashPassword := sha256.Sum256([]byte(saltedPassword))
 	return hex.EncodeToString(hashPassword[:])
 }
 
-func (u *utils) MatchPassword(storeHash string, password string, salt string) bool {
+func (u *cryptoUtils) MatchPassword(storeHash string, password string, salt string) bool {
 	hashPassword := u.HashPasswordSalt(password, salt)
 	return storeHash == hashPassword
 }

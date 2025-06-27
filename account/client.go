@@ -46,3 +46,19 @@ func (c *Client) GetAccounts() (pb.GetAccountsResponse, error) {
 		Account: result.Account,
 	}, nil
 }
+
+func (c *Client) RegisterAccount(userAccount string) error {
+	_, err := c.service.RegisterAccount(global.Ctx, &pb.RegisterAccountRequest{UserAccount: userAccount})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *Client) Login(username string, password string) (*pb.LoginResponse, error) {
+	token, err := c.service.Login(global.Ctx, &pb.LoginModel{Username: username, Password: password})
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}

@@ -20,3 +20,10 @@ type TblAccount struct {
 	UserCreatedAt  pgtype.Timestamp
 	UserUpdatedAt  pgtype.Timestamp
 }
+
+type TblToken struct {
+	ID           pgtype.UUID
+	UserID       pgtype.UUID
+	PublicKey    string
+	RefreshToken string
+}

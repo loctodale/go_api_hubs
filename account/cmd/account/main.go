@@ -12,21 +12,22 @@ import (
 
 func main() {
 	initialize.Run()
-	var r repository.Repository
-	r, err := repository.NewAccountRepository()
+	//var r repository.Repository
+	accountRepository, err := repository.NewAccountRepository()
+	tokenRepository := repository.NewTokenRepository()
 	if err != nil {
 		log.Println(err)
 	}
 
-	defer r.Close()
+	//defer r.Close()
 
-	u := utils.NewUtils()
+	u := utils.NewUtilsConfig()
 	if err != nil {
 		log.Println(err)
 	}
 	port := global.Config.AccountService.Ports.Local
 	log.Println("Listening on port: ", port)
-	s := service.NewAccountService(r, u)
+	s := service.NewAccountService(accountRepository, u, tokenRepository)
 	log.Fatal(server.ListenGRPC(s, port))
 
 }

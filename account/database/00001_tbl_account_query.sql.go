@@ -86,6 +86,31 @@ func (q *Queries) GetAccounts(ctx context.Context) ([]GetAccountsRow, error) {
 	return items, nil
 }
 
+const getLoginAccount = `-- name: GetLoginAccount :one
+SELECT user_account, user_password, user_salt, user_id
+FROM tbl_account
+WHERE user_account = $1
+`
+
+type GetLoginAccountRow struct {
+	UserAccount  string
+	UserPassword string
+	UserSalt     string
+	UserID       pgtype.UUID
+}
+
+func (q *Queries) GetLoginAccount(ctx context.Context, userAccount string) (GetLoginAccountRow, error) {
+	row := q.db.QueryRow(ctx, getLoginAccount, userAccount)
+	var i GetLoginAccountRow
+	err := row.Scan(
+		&i.UserAccount,
+		&i.UserPassword,
+		&i.UserSalt,
+		&i.UserID,
+	)
+	return i, err
+}
+
 const getOneUserInfo = `-- name: GetOneUserInfo :one
 SELECT user_id, user_account, user_password, user_salt, user_role
 FROM tbl_account

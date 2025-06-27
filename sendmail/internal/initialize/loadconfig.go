@@ -2,13 +2,18 @@ package initialize
 
 import (
 	"fmt"
-	"github.com/loctodale/go_api_hubs_microservice/account/global"
+	"github.com/loctodale/go_api_hubs_microservice/sendmail/global"
 	"github.com/spf13/viper"
+	"os"
 )
 
 func LoadConfig() {
-	viper.AddConfigPath("./config")
-	viper.SetConfigName("local")
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "local"
+	}
+	viper.AddConfigPath("/etc/sendmail/")
+	viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -18,5 +23,5 @@ func LoadConfig() {
 	if err = viper.Unmarshal(&global.Config); err != nil {
 		fmt.Printf("Unable to decode config %v", err)
 	}
-	fmt.Println("Config Server port::", global.Config.AccountService.Ports.Local)
+	fmt.Println("Config Server port::", global.Config.SendmailService.Ports.Local)
 }

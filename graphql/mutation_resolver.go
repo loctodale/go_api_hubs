@@ -6,6 +6,11 @@ type mutationResolver struct {
 	server *Server
 }
 
+func (m mutationResolver) Login(ctx context.Context, model *LoginModel) (*LoginResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (m mutationResolver) CreateAccount(ctx context.Context, account *AccountInput) (*Account, error) {
 	err := m.server.accountClient.PostAccount(account.UserAccount, account.UserPassword)
 	if err != nil {
@@ -15,8 +20,11 @@ func (m mutationResolver) CreateAccount(ctx context.Context, account *AccountInp
 }
 
 func (m mutationResolver) RegisterAccount(ctx context.Context, account *RegisterAccount) (*SampleResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	err := m.server.accountClient.RegisterAccount(account.UserAccount)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 func (m mutationResolver) CreateProduct(ctx context.Context, product *ProductInput) (*Product, error) {

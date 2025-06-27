@@ -10,6 +10,7 @@ type Account {
     orders: [Order!]!
 }
 
+
 type Product {
     id: String!
     name: String!,
@@ -30,6 +31,17 @@ type OrderedProduct {
     description: String!,
     price: Float!,
     quantity: Int!
+}
+
+type LoginResponse {
+    accessToken: String!
+    refreshToken: String!
+}
+
+
+input LoginModel {
+    username: String!
+    password: String!
 }
 
 input PaginationInput {
@@ -64,6 +76,7 @@ input OrderInput {
 }
 
 type Mutation {
+    login(model: LoginModel): LoginResponse
     registerAccount(account: RegisterAccount): SampleResponse
     createAccount(account: AccountInput): Account
     createProduct(product: ProductInput): Product

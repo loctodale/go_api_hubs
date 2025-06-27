@@ -1,0 +1,36 @@
+_format_version: "3.0"
+services:
+  - name: account-service
+    host: account-service
+    port: 6000
+    protocol: grpc
+    retries: 5
+    connect_timeout: 60000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: account-route
+        strip_path: false
+        paths:
+          - /account
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /account/proto/account.proto
+      - name: private-account-route
+        strip_path: false
+        paths:
+          - /private/account
+        plugins:
+          - name: grpc-gateway
+            config:
+              proto: /account/proto/account.proto
+          - name: jwt
+            config:
+              key_claim_name: sub
+              header_names:
+                - authorization
+          - name: acl
+            config:
+              allow:
+                - member
