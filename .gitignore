@@ -24,7 +24,10 @@ go.work.sum
 # env file
 .env
 /.idea/
-/account/config/local.yaml
+/account/config/config.local.yaml
 /account/Makefile
 /graphql/graphql
 /graphql/Makefile
+/account/google/
+/google/
+/googleapis/
