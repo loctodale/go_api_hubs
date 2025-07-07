@@ -3,7 +3,7 @@ package pkg
 type Config struct {
 	AccountService  AccountService  `mapstructure:"account_service"`
 	SendmailService SendmailService `mapstructure:"sendmail_service"`
-	AuthService
+	ApisService     ApisService     `mapstructure:"apis_service"`
 }
 
 // Service Config
@@ -26,6 +26,12 @@ type AuthService struct {
 	AuthServiceHost string     `mapstructure:"auth_service_host"`
 }
 
+type ApisService struct {
+	Ports    PortConfig          `mapstructure:"port"`
+	Database ApisServiceDatabase `mapstructure:"database"`
+	Kafka    KafkaConfig         `mapstructure:"kafka"`
+}
+
 // End Service config
 
 type RedisConfig struct {
@@ -40,13 +46,19 @@ type AccountServiceDatabase struct {
 	Postgres string      `mapstructure:"postgres"`
 	Redis    RedisConfig `mapstructure:"redis"`
 }
-type PortConfig struct {
-	Local int `mapstructure:"local"`
-	Prod  int `mapstructure:"prod"`
-}
 
 type SendmailDatabase struct {
 	Redis RedisConfig `mapstructure:"redis"`
+}
+
+type ApisServiceDatabase struct {
+	Postgres string      `mapstructure:"postgres"`
+	Redis    RedisConfig `mapstructure:"redis"`
+}
+
+type PortConfig struct {
+	Local int `mapstructure:"local"`
+	Prod  int `mapstructure:"prod"`
 }
 
 type KafkaConfig struct {

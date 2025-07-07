@@ -66,3 +66,25 @@ type TblApi struct {
 	Status      NullApiStatus
 	CreatedAt   pgtype.Timestamp
 }
+
+type TblApisKey struct {
+	ID           pgtype.UUID
+	UserID       pgtype.UUID
+	ApiID        pgtype.UUID
+	PlanID       pgtype.UUID
+	ApiKey       pgtype.Text
+	QuotaUsed    pgtype.Int4
+	QuotaResetAt pgtype.Timestamp
+	IsActive     pgtype.Bool
+	CreatedAt    pgtype.Timestamp
+}
+
+type TblApisPlan struct {
+	ID           pgtype.UUID
+	ApiID        pgtype.UUID
+	Name         string
+	PricePerCall pgtype.Int4
+	MonthlyLimit pgtype.Int4
+	RateLimit    pgtype.Int4
+	CreatedAt    pgtype.Timestamp
+}

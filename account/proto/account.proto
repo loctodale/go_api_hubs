@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "/pb";
+option go_package = "/pb/account";
 package pb;
 import "google/api/annotations.proto";
 
@@ -16,7 +16,7 @@ service AccountService{
       body: "*"
     };
   };
-  rpc GetAccounts (Empty) returns (GetAccountsResponse) {
+  rpc GetAccounts (GetAccountsRequest) returns (GetAccountsResponse) {
     option (google.api.http) = {
       get: "/account/get"
     };
@@ -36,9 +36,10 @@ service AccountService{
 }
 
 service PrivateAccountService {
-  rpc GetAccount(Empty) returns (Profile){
+  rpc GetAccount(GetAccountByIdRequest) returns (Profile){
     option (google.api.http) = {
       get: "/private/account"
+      body: "*"
     };
   }
 }
@@ -71,7 +72,7 @@ message PostAccountResponse {
 message GetAccountRequest {
   string userAccount = 1;
 }
-message Empty {
+message  GetAccountsRequest{
 
 }
 message GetAccountsResponse {
@@ -96,3 +97,6 @@ message BaseResponseMessage {
   string message = 2;
 }
 
+message GetAccountByIdRequest {
+  string id = 1;
+}

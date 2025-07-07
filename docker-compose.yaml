@@ -9,8 +9,7 @@ services:
       - "2181:2181"
       - "2888:2888"
       - "3888:3888"
-#    networks:
-#      - kong-network
+
   kafka:
       image: quay.io/debezium/kafka:2.7
       restart: always
@@ -19,8 +18,6 @@ services:
         - '29092:29092'
       links:
         - zookeeper
-#      networks:
-#        - kong-network
       environment:
         - ZOOKEEPER_CONNECT=zookeeper:2181
         - KAFKA_LISTENERS=INTERNAL://kafka:9092,EXTERNAL://0.0.0.0:29092
@@ -39,15 +36,12 @@ services:
         - "9089:8080"
       links:
         - kafka
-#      networks:
-#        - kong-network
+
   account-service:
       build:
         context: .
         dockerfile: ./account/app.dockerfile
       restart: always
-#      networks:
-#        - kong-network
       ports:
         - "6000:6001"
       environment:
@@ -58,10 +52,19 @@ services:
     build:
       context: .
       dockerfile: ./sendmail/app.dockerfile
-#    networks:
-#      - kong-network
     ports:
       - "7000:7001"
+    environment:
+      APP_ENV: docker
+    depends_on:
+      - kafka
+  apis-service:
+    build:
+      context: .
+      dockerfile: ./apis/app.dockerfile
+    restart: always
+    ports:
+      - "6002:6003"
     environment:
       APP_ENV: docker
     depends_on:
@@ -83,8 +86,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-#    networks:
-#      - kong-network
 
   kong-migrations:
     image: kong:latest
@@ -98,8 +99,7 @@ services:
       - kong-database
     depends_on:
       - kong-database
-#    networks:
-#      - kong-network
+
   kong:
     image: kong:latest
     restart: on-failure
@@ -122,6 +122,7 @@ services:
       - "8444:8444"
     volumes:
       - ./account/proto:/account/proto
+      - ./apis/proto:/apis/proto
       - ./google:/google
 #      - ./kong-plugin-jwt-keycloak/src:/usr/local/share/lua/5.1/kong/plugins/kong-oidc
 #      - ./googleapis/google:/google

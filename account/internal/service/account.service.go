@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/loctodale/go_api_hubs_microservice/account/database"
 	"github.com/loctodale/go_api_hubs_microservice/account/global"
 	repository2 "github.com/loctodale/go_api_hubs_microservice/account/internal/repository"
-	"github.com/loctodale/go_api_hubs_microservice/account/pb"
+	pb "github.com/loctodale/go_api_hubs_microservice/account/pb/account"
 	"github.com/loctodale/go_api_hubs_microservice/account/utils"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
@@ -21,6 +22,7 @@ type Service interface {
 	RegisterAccount(userAccount string) (pb.BaseResponseMessage, error)
 	LoginAccount(username string, password string) (pb.LoginResponse, error)
 	VerifyAccount(account string, otp string) (pb.BaseResponseMessage, error)
+	GetByUserId(userId string) (pb.Profile, error)
 }
 type accountService struct {
 	repository      repository2.Repository
@@ -275,4 +277,25 @@ func (a *accountService) LoginAccount(username string, password string) (pb.Logi
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
+}
+
+func (a *accountService) GetByUserId(userId string) (pb.Profile, error) {
+	uuid := pgtype.UUID{}
+	err := uuid.Scan(userId)
+	if err != nil {
+		return pb.Profile{}, err
+	}
+
+	result, err := a.repository.GetByUserId(uuid)
+	if err != nil {
+		return pb.Profile{}, err
+	}
+
+	profile := pb.Profile{
+		UserRole:    string(result.UserRole),
+		UserId:      result.UserID.String(),
+		UserAccount: result.UserAccount,
+	}
+
+	return profile, nil
 }

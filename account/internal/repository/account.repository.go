@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/loctodale/go_api_hubs_microservice/account/database"
 	"github.com/loctodale/go_api_hubs_microservice/account/global"
 )
@@ -16,6 +17,7 @@ type Repository interface {
 	CheckUserBaseExists(userAccount string) (int64, error)
 	GetAccounts() []database.GetAccountsRow
 	GetLoginAccount(userAccount string) (database.GetLoginAccountRow, error)
+	GetByUserId(uuid pgtype.UUID) (database.GetAccountByIdRow, error)
 }
 
 type postgresRepository struct {
@@ -88,6 +90,14 @@ func (r postgresRepository) GetLoginAccount(userAccount string) (database.GetLog
 	result, err := r.queries.GetLoginAccount(global.Ctx, userAccount)
 	if err != nil {
 		return database.GetLoginAccountRow{}, err
+	}
+	return result, nil
+}
+
+func (r postgresRepository) GetByUserId(uuid pgtype.UUID) (database.GetAccountByIdRow, error) {
+	result, err := r.queries.GetAccountById(global.Ctx, uuid)
+	if err != nil {
+		return database.GetAccountByIdRow{}, err
 	}
 	return result, nil
 }

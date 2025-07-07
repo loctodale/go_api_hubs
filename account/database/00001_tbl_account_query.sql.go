@@ -47,6 +47,25 @@ func (q *Queries) CheckUserBaseExists(ctx context.Context, userAccount string) (
 	return count, err
 }
 
+const getAccountById = `-- name: GetAccountById :one
+SELECT user_id, user_account, user_role
+FROM tbl_account
+WHERE user_id = $1
+`
+
+type GetAccountByIdRow struct {
+	UserID      pgtype.UUID
+	UserAccount string
+	UserRole    int32
+}
+
+func (q *Queries) GetAccountById(ctx context.Context, userID pgtype.UUID) (GetAccountByIdRow, error) {
+	row := q.db.QueryRow(ctx, getAccountById, userID)
+	var i GetAccountByIdRow
+	err := row.Scan(&i.UserID, &i.UserAccount, &i.UserRole)
+	return i, err
+}
+
 const getAccounts = `-- name: GetAccounts :many
 SELECT user_id, user_account, user_password, user_salt, user_role
 FROM tbl_account

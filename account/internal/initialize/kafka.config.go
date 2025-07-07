@@ -13,9 +13,9 @@ func InitKafkaServer() {
 		Addr:  kafka.TCP("kafka:9092"),
 		Topic: config.Kafka.Topic,
 	}
-	if k != nil {
-		fmt.Println("kafka connect success")
+	if k == nil {
+		panic(fmt.Sprintf("kafka writer is nil"))
 	}
-
+	fmt.Println("kafka writer is ready")
 	global.KafkaProducer = k
 }
