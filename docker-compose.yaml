@@ -69,6 +69,15 @@ services:
       APP_ENV: docker
     depends_on:
       - kafka
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./payment/PaymentService/PaymentService/Dockerfile
+    restart: always
+    ports:
+      - "5200:5201"
+    depends_on:
+      - kafka
   kong-database:
     image: postgres:9.6
     environment:
@@ -123,6 +132,7 @@ services:
     volumes:
       - ./account/proto:/account/proto
       - ./apis/proto:/apis/proto
+      - ./payment/PaymentService/Proto:/payment/proto
       - ./google:/google
 #      - ./kong-plugin-jwt-keycloak/src:/usr/local/share/lua/5.1/kong/plugins/kong-oidc
 #      - ./googleapis/google:/google
