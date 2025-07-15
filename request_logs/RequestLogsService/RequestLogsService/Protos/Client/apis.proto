@@ -1,0 +1,110 @@
+syntax = "proto3";
+option go_package = "/pb/apis";
+package pb;
+import "google/api/annotations.proto";
+import "google/type/datetime.proto";
+import "google/protobuf/struct.proto";
+service ApiService {
+  rpc AddOneApi (CreateApiRequest) returns (BaseResponse) {
+    option (google.api.http) = {
+      post: "/apis/private",
+      body: "*"
+    };
+  }
+  rpc GetApiById (GetOneApiRequest) returns (GetOneApiResponse) {
+    option (google.api.http) = {
+      get: "/apis/private/one",
+      body: "*"
+    };
+  }
+}
+
+service ApisPlanService {
+  rpc AddOneApiPlan(CreateApiPlanRequest) returns (BaseResponse) {
+    option (google.api.http) = {
+      post: "/plan/private"
+      body: "*"
+    };
+  }
+}
+
+service ApisKeyService {
+  rpc AddOneApisKey(CreateApisKeyRequest) returns(BaseResponse){
+    option (google.api.http) = {
+      post: "/api_keys/private"
+      body: "*"
+    };
+  }
+  rpc CallApiByKey (CallApiRequest) returns (CallApiResponse){
+    option (google.api.http) = {
+      post: "/api_keys/private/call"
+      body: "*"
+    };
+  }
+}
+
+message BaseResponse {
+  string message = 1;
+  int32 code = 2;
+}
+
+message CallApiRequest {
+  string apiKey = 1;
+  string endpoint = 2;
+  string method = 3;
+  google.protobuf.Struct body = 4;
+}
+
+message CallApiResponse {
+  BaseResponse baseResponse = 1;
+  google.protobuf.Struct payload = 2;
+}
+
+message ApiModel {
+  string providerId = 1;
+  string name = 2;
+  string slug = 3;
+  string description = 4;
+  string category = 5;
+  string baseUrl = 6;
+  string docsUrl = 7;
+  string status = 8;
+  string createdAt = 9;
+}
+
+
+message CreateApiRequest {
+  string providerId = 1;
+  string name = 2;
+  string description = 4;
+  string category = 5;
+  string baseUrl = 6;
+  string docsUrl = 7;
+  string status = 8;
+}
+
+message GetOneApiResponse {
+  BaseResponse baseResponse = 1;
+  ApiModel apiModel = 2;
+}
+
+message GetOneApiRequest {
+  string id = 1;
+}
+
+message CreateApiPlanRequest {
+  string apiId = 1;
+  string name = 2;
+  int32 pricePerCall = 3;
+  int32 monthlyLimit = 4;
+  int32 rateLimit = 5;
+}
+
+message CreateApisKeyRequest {
+  string userId = 1;
+  string apiId = 2;
+  string planId = 3;
+  int32 quota_used = 4;
+  google.type.DateTime quota_reset_at = 5;
+  bool is_active = 6;
+}
