@@ -1,0 +1,27 @@
+syntax = "proto3";
+option go_package = "pb/discord_logs";
+package pb;
+import "google/api/annotations.proto";
+
+service DiscordLogsService {
+  rpc SendLogsMessage (SendLogsMessageRequest) returns (SendLogsMessageResponse) {
+    option (google.api.http) = {
+      post: "/discord-logs-bot"
+      body: "*"
+    };
+  }
+}
+
+message BaseResponse {
+  string message = 1;
+  int32 code = 2;
+}
+
+message SendLogsMessageRequest {
+  string message = 1;
+  string service = 2;
+}
+
+message SendLogsMessageResponse {
+  BaseResponse baseResponse = 1;
+}

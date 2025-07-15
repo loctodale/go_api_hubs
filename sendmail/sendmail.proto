@@ -1,0 +1,15 @@
+syntax = "proto3";
+option go_package = "/pb";
+package pb;
+
+message SendmailVerificationRequest{
+  string email = 1;
+  string otp = 2;
+}
+message SendmailVerificationResponse{
+
+}
+
+service SendmailService {
+  rpc SendmailVerification (SendmailVerificationRequest) returns (SendmailVerificationResponse) {}
+}

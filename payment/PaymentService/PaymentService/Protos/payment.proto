@@ -1,0 +1,48 @@
+syntax = "proto3";
+option csharp_namespace = "PaymentService";
+package pb;
+import "google/api/annotations.proto";
+
+service PaymentService {
+  rpc CreateNewWallet (CreateWalletRequest) returns (CreateWalletResponse) {
+    option (google.api.http) = {
+      post: "/wallet"
+      body: "*"
+    };
+  }
+  rpc AddToWallet (AddToWalletRequest) returns (AddToWalletResponse) {
+    option (google.api.http) = {
+      post: "/wallet/add",
+      body: "*"
+    };
+  }
+}
+
+message BaseResponse {
+  string message = 1;
+  int32 code = 2;
+}
+
+message CreateWalletRequest {
+  string userid = 1;
+  int32 amount = 2;
+  int32 type = 3;
+  string method = 4;
+  string referenceId = 5;
+}
+
+message CreateWalletResponse {
+  BaseResponse baseResponse = 1;
+}
+
+message AddToWalletRequest {
+  string id = 1;
+  string userId = 2;
+  int32 amount = 3;
+  string type = 4;
+  string referenceId = 5;
+}
+
+message AddToWalletResponse {
+  BaseResponse baseResponse = 1;
+}

@@ -1,0 +1,28 @@
+syntax = "proto3";
+option csharp_namespace = "RequestLogsService";
+import "google/api/annotations.proto";
+
+service RequestLogsService {
+  rpc CreateRequestLogs (CreateRequestLogsRequest) returns (CreateRequestLogsResponse) {
+      option (google.api.http) = {
+        post: "/request_logs",
+        body: "*"
+      };
+  }
+}
+
+message CreateRequestLogsRequest {
+  string apiKeyId = 1;
+  int32 statusCode = 2;
+  string endpoint = 3;
+  int32 cost = 4;
+}
+
+message CreateRequestLogsResponse {
+  BaseResponse baseResponse  = 1;
+}
+
+message BaseResponse {
+  int32 code = 1;
+  string message = 2;
+}
