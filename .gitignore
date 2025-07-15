@@ -194,3 +194,4 @@ obj/
 /discord-logs-bot/config/config.docker.yaml
 /request_logs/RequestLogsService/RequestLogsService/appsettings.Development.json
 /request_logs/RequestLogsService/RequestLogsService/appsettings.json
+/workflow/
