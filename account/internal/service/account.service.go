@@ -10,6 +10,7 @@ import (
 	repository2 "github.com/loctodale/go_api_hubs_microservice/account/internal/repository"
 	pb "github.com/loctodale/go_api_hubs_microservice/account/pb/account"
 	paymentPb "github.com/loctodale/go_api_hubs_microservice/account/pb/payment"
+	tenantPb "github.com/loctodale/go_api_hubs_microservice/account/pb/tenant"
 	"github.com/loctodale/go_api_hubs_microservice/account/utils"
 	"github.com/redis/go-redis/v9"
 	"github.com/segmentio/kafka-go"
@@ -211,6 +212,21 @@ func (a *accountService) VerifyAccount(account string, otp string) (pb.BaseRespo
 		Type:        1,
 		ReferenceId: "TEST",
 		Userid:      result.UserID.String(),
+	})
+	if err != nil {
+		return pb.BaseResponseMessage{Code: 400, Message: err.Error()}, err
+	}
+
+	tenantConn, err := grpc.Dial("tenant-service:8080", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return pb.BaseResponseMessage{Code: 400, Message: err.Error()}, err
+	}
+	defer tenantConn.Close()
+	tenantClient := tenantPb.NewTenantServiceGrpcClient(tenantConn)
+
+	_, err = tenantClient.CreateNewTenantId(global.Ctx, &tenantPb.RequestCreateTenant{
+		Name:   "Default",
+		UserId: result.UserID.String(),
 	})
 	if err != nil {
 		return pb.BaseResponseMessage{Code: 400, Message: err.Error()}, err

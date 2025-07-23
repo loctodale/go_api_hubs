@@ -27,6 +27,7 @@ func main() {
 	}
 	port := global.Config.AccountService.Ports.Local
 	log.Println("Listening on port: ", port)
+	
 	s := service.NewAccountService(accountRepository, u, tokenRepository)
 	log.Fatal(server.ListenGRPC(s, port))
 

@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ApiService_AddOneApi_FullMethodName  = "/pb.ApiService/AddOneApi"
-	ApiService_GetApiById_FullMethodName = "/pb.ApiService/GetApiById"
+	ApiService_AddOneApi_FullMethodName  = "/apis.ApiService/AddOneApi"
+	ApiService_GetApiById_FullMethodName = "/apis.ApiService/GetApiById"
 )
 
 // ApiServiceClient is the client API for ApiService service.
@@ -142,7 +142,7 @@ func _ApiService_GetApiById_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ApiService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.ApiService",
+	ServiceName: "apis.ApiService",
 	HandlerType: (*ApiServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -159,7 +159,7 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ApisPlanService_AddOneApiPlan_FullMethodName = "/pb.ApisPlanService/AddOneApiPlan"
+	ApisPlanService_AddOneApiPlan_FullMethodName = "/apis.ApisPlanService/AddOneApiPlan"
 )
 
 // ApisPlanServiceClient is the client API for ApisPlanService service.
@@ -248,7 +248,7 @@ func _ApisPlanService_AddOneApiPlan_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ApisPlanService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.ApisPlanService",
+	ServiceName: "apis.ApisPlanService",
 	HandlerType: (*ApisPlanServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -261,9 +261,9 @@ var ApisPlanService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ApisKeyService_AddOneApisKey_FullMethodName         = "/pb.ApisKeyService/AddOneApisKey"
-	ApisKeyService_CallApiByKey_FullMethodName          = "/pb.ApisKeyService/CallApiByKey"
-	ApisKeyService_CheckApisKeyIsExisted_FullMethodName = "/pb.ApisKeyService/CheckApisKeyIsExisted"
+	ApisKeyService_AddOneApisKey_FullMethodName         = "/apis.ApisKeyService/AddOneApisKey"
+	ApisKeyService_CallApiByKey_FullMethodName          = "/apis.ApisKeyService/CallApiByKey"
+	ApisKeyService_CheckApisKeyIsExisted_FullMethodName = "/apis.ApisKeyService/CheckApisKeyIsExisted"
 )
 
 // ApisKeyServiceClient is the client API for ApisKeyService service.
@@ -418,7 +418,7 @@ func _ApisKeyService_CheckApisKeyIsExisted_Handler(srv interface{}, ctx context.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ApisKeyService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.ApisKeyService",
+	ServiceName: "apis.ApisKeyService",
 	HandlerType: (*ApisKeyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

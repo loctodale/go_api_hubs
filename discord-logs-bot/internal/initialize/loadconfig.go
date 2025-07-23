@@ -19,5 +19,6 @@ func LoadDiscordConfig() {
 	if err = viper.Unmarshal(&global.Config); err != nil {
 		fmt.Printf("Unable to decode config %v", err)
 	}
+	fmt.Println(global.Config.DiscordBotLogs.Token)
 	fmt.Println("Config Server port::", 8080)
 }

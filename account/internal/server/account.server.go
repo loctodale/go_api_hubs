@@ -3,12 +3,11 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/loctodale/go_api_hubs_microservice/account/internal/logs"
 	"github.com/loctodale/go_api_hubs_microservice/account/internal/service"
 	pb "github.com/loctodale/go_api_hubs_microservice/account/pb/account"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
 	"net"
 )
 
@@ -24,6 +23,7 @@ func ListenGRPC(s service.Service, port int) error {
 		return err
 	}
 	serv := grpc.NewServer()
+
 	pb.RegisterAccountServiceServer(serv, &grpcServer{service: s})
 	pb.RegisterPrivateAccountServiceServer(serv, &grpcServer{service: s})
 	reflection.Register(serv)
@@ -54,11 +54,12 @@ func (s *grpcServer) GetAccounts(ctx context.Context, request *pb.GetAccountsReq
 }
 
 func (s *grpcServer) RegisterAccount(ctx context.Context, req *pb.RegisterAccountRequest) (*pb.BaseResponseMessage, error) {
-	fmt.Println("Start register")
 	result, err := s.service.RegisterAccount(req.UserAccount)
 	if err != nil {
+		go logs.LogsAccountService(req, "POST", "/account/register", 500)
 		return &result, nil
 	}
+	go logs.LogsAccountService(req, "POST", "/account/register", 200)
 	return &pb.BaseResponseMessage{
 		Message: fmt.Sprintf("User Account %s is registered", req.UserAccount),
 		Code:    200,
@@ -69,16 +70,20 @@ func (s *grpcServer) VerifyAccount(ctx context.Context, req *pb.VerifyAccountReq
 	request, err := s.service.VerifyAccount(req.Account, req.Otp)
 	if err != nil {
 		fmt.Println(err)
+		go logs.LogsAccountService(req, "POST", "/account/verify", 500)
 		return &request, nil
 	}
+	go logs.LogsAccountService(req, "POST", "/account/verify", 200)
 	return &request, nil
 }
 func (s *grpcServer) Login(ctx context.Context, req *pb.LoginModel) (*pb.LoginResponse, error) {
 	result, err := s.service.LoginAccount(req.Username, req.Password)
 	if err != nil {
 		fmt.Println(err)
+		go logs.LogsAccountService(req, "POST", "/account/login", 500)
 		return nil, err
 	}
+	go logs.LogsAccountService(req, "POST", "/account/login", 200)
 	return &result, nil
 }
 
@@ -91,5 +96,12 @@ func (s *grpcServer) GetAccount(ctx context.Context, req *pb.GetAccountByIdReque
 }
 
 func (s *grpcServer) VerifyProviderAccount(ctx context.Context, req *pb.VerifyAccountRequest) (*pb.BaseResponseMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyProviderAccount not implemented")
+	result, err := s.service.VerifyProviderAccount(req.Account, req.Otp)
+	if err != nil {
+		fmt.Println(err)
+		go logs.LogsAccountService(req, "POST", "/account/verify/provider", 500)
+		return &result, nil
+	}
+	go logs.LogsAccountService(req, "POST", "/account/verify/provider", 200)
+	return &result, nil
 }

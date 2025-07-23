@@ -194,4 +194,5 @@ obj/
 /discord-logs-bot/config/config.docker.yaml
 /request_logs/RequestLogsService/RequestLogsService/appsettings.Development.json
 /request_logs/RequestLogsService/RequestLogsService/appsettings.json
-/workflow/
+/workflow/ElsaServer/appsettings.json
+/workflow/Tenant.Grpc/appsettings.json

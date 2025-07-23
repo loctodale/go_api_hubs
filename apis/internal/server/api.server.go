@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/loctodale/go_api_hubs_microservice/apis/internal/logs"
 	"github.com/loctodale/go_api_hubs_microservice/apis/internal/service"
 	pb "github.com/loctodale/go_api_hubs_microservice/apis/pb/apis"
 	"google.golang.org/grpc"
@@ -48,11 +49,13 @@ func (s *grpcServer) AddOneApi(ctx context.Context, req *pb.CreateApiRequest) (*
 	_, err := s.apisService.CreateOneApi(req)
 	if err != nil {
 		fmt.Println("Error::", err)
+		go logs.LogService().LogApisService(req, "POST", "/apis/private", 500)
 		return &pb.BaseResponse{
 			Code:    500,
 			Message: err.Error(),
 		}, nil
 	}
+	go logs.LogService().LogApisService(req, "POST", "/apis/private", 200)
 	return &pb.BaseResponse{
 		Message: "Tạo mới thành công",
 		Code:    200,

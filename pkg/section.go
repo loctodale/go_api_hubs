@@ -4,7 +4,7 @@ type Config struct {
 	AccountService  AccountService  `mapstructure:"account_service"`
 	SendmailService SendmailService `mapstructure:"sendmail_service"`
 	ApisService     ApisService     `mapstructure:"apis_service"`
-	DiscordBotLogs  DiscordBotLogs  `mapstructure:"discord-logs-bot-service"`
+	DiscordBotLogs  DiscordBotLogs  `mapstructure:"discord-logs-service"`
 }
 
 // Service Config

@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PaymentService_CreateNewWallet_FullMethodName = "/pb.PaymentService/CreateNewWallet"
-	PaymentService_AddToWallet_FullMethodName     = "/pb.PaymentService/AddToWallet"
+	PaymentService_CreateNewWallet_FullMethodName = "/payment.PaymentService/CreateNewWallet"
+	PaymentService_AddToWallet_FullMethodName     = "/payment.PaymentService/AddToWallet"
 )
 
 // PaymentServiceClient is the client API for PaymentService service.
@@ -142,7 +142,7 @@ func _PaymentService_AddToWallet_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PaymentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pb.PaymentService",
+	ServiceName: "payment.PaymentService",
 	HandlerType: (*PaymentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

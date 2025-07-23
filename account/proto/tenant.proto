@@ -1,0 +1,27 @@
+syntax = "proto3";
+option go_package = "/pb/tenant";
+package tenant;
+import "google/api/annotations.proto";
+
+service TenantServiceGrpc {
+  rpc CreateNewTenantId (RequestCreateTenant) returns (ResponseCreateTenant) {
+    option (google.api.http) = {
+      post: "/tenant",
+      body: "*"
+    };
+  }
+}
+
+message RequestCreateTenant {
+  string userId = 1;
+  string name = 2;
+}
+
+message BaseResponse {
+  string message = 1;
+  int32 code = 2;
+}
+
+message ResponseCreateTenant {
+  BaseResponse baseResponse = 1;
+}

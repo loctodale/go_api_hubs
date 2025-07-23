@@ -43,7 +43,7 @@ services:
         dockerfile: ./account/app.dockerfile
       restart: on-failure
       ports:
-        - "8080:8081"
+        - "8081:8080"
       environment:
         APP_ENV: docker
       depends_on:
@@ -92,28 +92,35 @@ services:
     restart: on-failure
     ports:
       - "8085:8080"
-#  elsa-server:
-#    build:
-#      context:  .
-#      dockerfile: workflow/ElsaWorkflowService/ElsaServer/Dockerfile
-#    ports:
-#      - "8080:8080"
-#    restart: always
-#    environment:
-#      ASPNETCORE_ENVIRONMENT: Development
-#      HTTP_PORTS: 8080
-#      HTTP__BASEURL: http://localhost:8080
-#  elsa-studio:
-#    image: elsaworkflows/elsa-studio-v3
-#    ports:
-#      - "14000:8080"
-#    environment:
-#      ASPNETCORE_ENVIRONMENT: Development
-#      HTTP_PORTS: 8080
-#      ELSASERVER__URL: http://localhost:8080/elsa/api
-#      HTTP__BASEURL: http://localhost:14000
-#    depends_on:
-#      - elsa-server
+  tenant-service:
+    build:
+      context: .
+      dockerfile: ./workflow/Tenant.Grpc/Dockerfile
+    restart: on-failure
+    ports:
+      - "8086:8080"
+  elsa-server:
+    build:
+      context:  .
+      dockerfile: workflow/ElsaServer/Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      HTTP_PORTS: 8080
+      HTTP__BASEURL: http://localhost:8080
+  elsa-studio:
+    image: elsaworkflows/elsa-studio-v3
+    ports:
+      - "14000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      HTTP_PORTS: 8080
+      ELSASERVER__URL: http://localhost:8080/elsa/api
+      HTTP__BASEURL: http://localhost:14000
+    depends_on:
+      - elsa-server
   kong-database:
     image: postgres:9.6
     environment:

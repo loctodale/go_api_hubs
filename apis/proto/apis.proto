@@ -1,6 +1,6 @@
 syntax = "proto3";
 option go_package = "/pb/apis";
-package pb;
+package apis;
 import "google/api/annotations.proto";
 import "google/type/datetime.proto";
 import "google/protobuf/struct.proto";
