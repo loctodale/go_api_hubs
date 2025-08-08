@@ -119,6 +119,7 @@ services:
       HTTP_PORTS: 8080
       ELSASERVER__URL: http://localhost:8080/elsa/api
       HTTP__BASEURL: http://localhost:14000
+      ELSA__SHELL__DISABLEAUTHORIZATION: true
     depends_on:
       - elsa-server
   kong-database:

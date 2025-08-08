@@ -196,3 +196,4 @@ obj/
 /request_logs/RequestLogsService/RequestLogsService/appsettings.json
 /workflow/ElsaServer/appsettings.json
 /workflow/Tenant.Grpc/appsettings.json
+/workflow/.idea/

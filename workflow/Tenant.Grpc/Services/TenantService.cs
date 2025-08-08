@@ -15,12 +15,11 @@ public class TenantService : TenantServiceGrpc.TenantServiceGrpcBase
 
     public override async Task<ResponseCreateTenant> CreateNewTenantId(RequestCreateTenant request, ServerCallContext context)
     {
-        await _context.Tenants.AddAsync(new Entities.Tenant
+        await _context.TblTenantServices.AddAsync(new Entities.TblTenantService
         {
-            Id = Guid.NewGuid().ToString(),
+            Id = Guid.NewGuid(),
             Name = request.Name,
-            TenantId = Guid.NewGuid().ToString(),
-            Configuration = request.UserId
+            TenantId = Guid.NewGuid(),
         });
         
         await _context.SaveChangesAsync();

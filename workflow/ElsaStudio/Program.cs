@@ -25,7 +25,11 @@ builder.RootComponents.RegisterCustomElsaStudioElements();
 
 // Register shell services and modules.
 builder.Services.AddCore();
-builder.Services.AddShell();
+// builder.Services.AddShell();
+builder.Services.AddShell(opt =>
+{
+    opt.DisableAuthorization = true;
+});
 builder.Services.AddRemoteBackend(new()
 {
     ConfigureHttpClientBuilder = options => options.AuthenticationHandler = typeof(AuthenticatingApiHttpMessageHandler)

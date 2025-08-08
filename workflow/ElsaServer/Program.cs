@@ -31,33 +31,26 @@ builder.Services.Configure<IdentityTokenOptions>(options =>
 {
     options.TenantIdClaimsType = "http://schemas.microsoft.com/identity/claims/tenantid";
 });
-
+Elsa.EndpointSecurityOptions.DisableSecurity();
 builder.Services.AddScoped<ITenantStore,MemoryTenantStore>();
 builder.Services.AddElsa(elsa =>
 {
     var dbContextOptions = new ElsaDbContextOptions();
     string postgresConnectionString = configuration.GetConnectionString("Postgresql")!;
-    string schema = configuration.GetConnectionString("Schema")!;
-
-    if (!string.IsNullOrEmpty(schema))
-    {
-        dbContextOptions.SchemaName = schema;
-        dbContextOptions.MigrationsAssemblyName = typeof(Program).Assembly.GetName().Name;
-    }
     elsa.UseWorkflowManagement(management => 
         management
             .UseEntityFrameworkCore(ef => ef.UsePostgreSql(postgresConnectionString, dbContextOptions)));
     elsa.UseWorkflowRuntime(runtime => runtime.UseEntityFrameworkCore(ef => ef.UsePostgreSql(postgresConnectionString, dbContextOptions)));
 
     elsa.UseSasTokens()
-         .UseIdentity(identity =>
-         {
-             identity.TokenOptions = options => identityTokenSection.Bind(options);
-             identity.UseConfigurationBasedApplicationProvider(options => identitySection.Bind(options));
-             identity.UseConfigurationBasedRoleProvider(options => identitySection.Bind(options));
-         })
-         .UseDefaultAuthentication();
-    // elsa.UseTenantHttpRouting(http => http.WithTenantHeader("X-Tenant-Id"));
+        .UseIdentity(identity =>
+        {
+            identity.TokenOptions = options => identityTokenSection.Bind(options);
+            identity.UseConfigurationBasedApplicationProvider(options => identitySection.Bind(options));
+            identity.UseConfigurationBasedRoleProvider(options => identitySection.Bind(options));
+        });
+         
+    elsa.UseTenantHttpRouting(http => http.WithTenantHeader("X-Tenant-Id"));
     elsa.UseTenants(tenantsFeature =>
     {
       
@@ -122,4 +115,5 @@ if (!app.Environment.IsProduction())
     app.UseReDoc();
 }
 
+app.Run();
 app.Run();

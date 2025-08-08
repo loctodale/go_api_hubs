@@ -24,7 +24,12 @@ public class DatabaseTenantsProvider : ITenantsProvider
         {
             var tenantEntities = await _context.TblTenantServices.ToListAsync();
             
-            return tenantEntities.Select(MapToTenant);
+            return tenantEntities.Select(x => new Tenant
+            {
+                Id = x.Id.ToString(),
+                Name = x.Name,
+                TenantId = x.TenantId.ToString(),
+            }).ToList();
         }
         catch (Exception e)
         {
