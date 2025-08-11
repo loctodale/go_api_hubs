@@ -14,7 +14,11 @@ using Elsa.Tenants.Extensions;
 using ElsaServer;
 using ElsaServer.Models;
 using FastEndpoints.Swagger;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using ITenantAccessor = Elsa.Services.ITenantAccessor;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -22,7 +26,7 @@ ConfigurationManager configuration = builder.Configuration;
 
 var identitySection = configuration.GetSection("Identity");
 var identityTokenSection = identitySection.GetSection("Tokens");
-
+Elsa.EndpointSecurityOptions.DisableSecurity();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -31,7 +35,7 @@ builder.Services.Configure<IdentityTokenOptions>(options =>
 {
     options.TenantIdClaimsType = "http://schemas.microsoft.com/identity/claims/tenantid";
 });
-Elsa.EndpointSecurityOptions.DisableSecurity();
+builder.WebHost.UseStaticWebAssets();
 builder.Services.AddScoped<ITenantStore,MemoryTenantStore>();
 builder.Services.AddElsa(elsa =>
 {
@@ -99,12 +103,13 @@ app.MapControllers();
 app.UseWorkflows();
 app.UseWorkflowsApi();
 app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
 app.UseRouting();
 app.UseCors();
-app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseTenants();
+app.MapRazorPages();
 app.MapFallbackToPage("/_Host");
 if (!app.Environment.IsProduction())
 {

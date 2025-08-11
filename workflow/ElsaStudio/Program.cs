@@ -1,15 +1,16 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Elsa.Studio.Dashboard.Extensions;
+using Elsa.Studio.Shell;
+using Elsa.Studio.Shell.Extensions;
+using Elsa.Studio.Workflows.Extensions;
 using Elsa.Studio.Contracts;
 using Elsa.Studio.Core.BlazorWasm.Extensions;
-using Elsa.Studio.Dashboard.Extensions;
 using Elsa.Studio.Extensions;
 using Elsa.Studio.Login.BlazorWasm.Extensions;
 using Elsa.Studio.Login.HttpMessageHandlers;
 using Elsa.Studio.Options;
-using Elsa.Studio.Shell;
-using Elsa.Studio.Shell.Extensions;
 using Elsa.Studio.Workflows.Designer.Extensions;
-using Elsa.Studio.Workflows.Extensions;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Options;
@@ -23,12 +24,20 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.RootComponents.RegisterCustomElsaStudioElements();
 
+// Configure JSON serialization to avoid NullabilityInfoContext issues
+builder.Services.Configure<JsonSerializerOptions>(options =>
+{
+    options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.PropertyNameCaseInsensitive = true;
+    options.TypeInfoResolver = ElsaStudio.WebAssemblyJsonSerializerContext.Default;
+});
+
 // Register shell services and modules.
 builder.Services.AddCore();
-// builder.Services.AddShell();
-builder.Services.AddShell(opt =>
+builder.Services.AddShell(options =>
 {
-    opt.DisableAuthorization = true;
+    options.DisableAuthorization = true;
 });
 builder.Services.AddRemoteBackend(new()
 {
@@ -44,12 +53,10 @@ var app = builder.Build();
 // Apply client config.
 var js = app.Services.GetRequiredService<IJSRuntime>();
 var clientConfig = await js.InvokeAsync<JsonElement>("getClientConfig");
-var apiUrl = clientConfig.GetProperty("apiUrl").GetString() ?? throw new InvalidOperationException("No API URL configured.");
-app.Services.GetRequiredService<IOptions<BackendOptions>>().Value.Url = new(apiUrl);
-
+var apiUrl = clientConfig.GetProperty("apiUrl").GetString()!;
+app.Services.GetRequiredService<IOptions<BackendOptions>>().Value.Url = new Uri(apiUrl);
 // Run each startup task.
 var startupTaskRunner = app.Services.GetRequiredService<IStartupTaskRunner>();
 await startupTaskRunner.RunStartupTasksAsync();
-
 // Run the application.
 await app.RunAsync();

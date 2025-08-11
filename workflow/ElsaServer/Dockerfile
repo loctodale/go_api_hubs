@@ -1,25 +1,61 @@
-# Use .NET SDK to build the solution
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+## Use .NET SDK to build the solution
+#FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+#WORKDIR /app
+#
+## Copy solution and restore dependencies
+##COPY workflow/ElsaWorkflowService/ElsaWorkflowService.sln ./
+#COPY workflow/ElsaServer/ ./
+#RUN dotnet restore
+#
+## Copy everything else and build the projects
+##COPY . .
+#RUN dotnet publish ElsaServer.csproj -c Release -o /app/out
+#
+## Use ASP.NET runtime for the final image
+#FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+#WORKDIR /app
+#
+## Copy the built output
+#COPY --from=build /app/out .
+#
+### Expose ports
+#EXPOSE 8080
+#
+## Start Elsa Server
+#ENTRYPOINT ["dotnet", "ElsaServer.dll"]
+
+
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS build
+WORKDIR /source
+
+# copy sources.
+COPY workflow/. ./src
+
+# restore packages.
+RUN dotnet restore "./src/ElsaStudio/ElsaStudio.csproj"
+RUN dotnet restore "./src/ElsaServer/ElsaServer.csproj"
+
+# build and publish (UseAppHost=false creates platform independent binaries).
+WORKDIR /source/src/ElsaServer
+RUN dotnet build "ElsaServer.csproj" -c Release -o /app/build
+RUN dotnet publish "ElsaServer.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore -f net8.0
+
+# move binaries into smaller base image.
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS base
 WORKDIR /app
+COPY --from=build /app/publish ./
 
-# Copy solution and restore dependencies
-#COPY workflow/ElsaWorkflowService/ElsaWorkflowService.sln ./
-COPY workflow/ElsaServer/ ./
-RUN dotnet restore 
+# Install Python 3.11
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-dev \
+    libpython3.11 \
+    python3-pip && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy everything else and build the projects
-#COPY . .
-RUN dotnet publish ElsaServer.csproj -c Release -o /app/out
+# Set PYTHONNET_PYDLL environment variable
+ENV PYTHONNET_PYDLL=/usr/lib/aarch64-linux-gnu/libpython3.11.so
 
-# Use ASP.NET runtime for the final image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
-WORKDIR /app
-    
-# Copy the built output
-COPY --from=build /app/out .
-
-## Expose ports
-EXPOSE 8080
-
-# Start Elsa Server
+EXPOSE 8080/tcp
+EXPOSE 443/tcp
 ENTRYPOINT ["dotnet", "ElsaServer.dll"]

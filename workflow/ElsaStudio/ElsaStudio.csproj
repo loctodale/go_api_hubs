@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,8 +11,13 @@
     <PackageReference Include="Elsa.Studio" Version="3.4.0" />
     <PackageReference Include="Elsa.Studio.Core.BlazorWasm" Version="3.4.0" />
     <PackageReference Include="Elsa.Studio.Login.BlazorWasm" Version="3.4.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.11" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.11" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.14" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="8.0.19" />
+    <PackageReference Include="Elsa.Studio.Workflows.Designer" Version="3.4.0" />
+    
   </ItemGroup>
-
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>
